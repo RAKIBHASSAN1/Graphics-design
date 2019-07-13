@@ -1,0 +1,293 @@
+#include <windows.h>  // for MS Windows
+#include <GL/glut.h>  // GLUT, includes glu.h and gl.h
+#include<math.h>
+#define pi 3.142857
+#include<stdio.h>
+#include <time.h>
+#define CIMA 1
+#define BAIXO 2
+#define ESQUERDA 3
+#define DIREITA 4
+
+// Variaveis de status
+GLint   lvl      = 1;
+GLint   bComidas = 0;
+GLint   tamanho  = 0;
+GLbyte  gameOver = true;
+
+// Variaveis da cobrinha
+GLint   corpoPos[2][40] = {{}};
+GLint   _x       = 10;
+GLint   _y       = 20;
+GLint   _oldX[2] = {};
+GLint   _oldY[2] = {};
+GLbyte  direcao  = 0;
+
+// Variaveis da comidinha
+GLint   _bx      = 0;
+GLint   _by      = 0;
+
+// Variaveis da tela
+GLint   _w       = 400;
+GLint   _h       = 350;
+GLint   _Giw     = 10;
+GLint   _Gih     = 30;
+GLint   _Gfw     = 270;
+GLint   _Gfh     = 240;
+
+// Variaveis para verificação de FPS
+DWORD   g_dwLastFPS = 0;
+int		g_nFPS = 0, g_nFrames = 0;
+
+// Variaveis do mouse
+//GLint   Tx = 0;
+//GLint   Ty = 0;
+
+void resetaJogo(){
+        _x       = 10;
+        _y       = 20;
+        direcao  = 0;
+        lvl      = 1;
+        bComidas = 0;
+        tamanho  = 0;
+        gameOver = false;
+}
+
+void Escreve(char *string){
+     while(*string)
+        glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *string++);
+}
+
+void fTitulo(){
+     char tmp_str[40];
+
+     // Titulo
+     glColor3f(0, 0, 0);
+     glRectf(_Giw, _Gih, _Gfw, _Gfh);
+     glColor3f(1, 1, 1);
+     glRasterPos2f(85, 210);
+     Escreve("Jogo da Cobrinha");
+
+     glColor3f(.4, .4, .4);
+     glRectf(65, 180, 200, 195);
+     glColor3f(1, 1, 1);
+     glRasterPos2f(105, 185);
+     Escreve("Novo jogo");
+
+     // Mouse
+     /*
+     glColor3f(0, 0, 0);
+     glRasterPos2f(10, 10);
+     sprintf(tmp_str, "x: %d, y: %d", Tx, Ty);
+     Escreve(tmp_str);
+     */
+}
+
+void updateCobrinha(){
+     int  i;
+
+     // Cobrinha
+     // Cabeça
+     glPushMatrix();
+     glTranslatef(_x,_y,0.0);
+     glColor3f(1, 0, 0);
+     glRectf(10.0f, 10.0f, 20.0f, 20.0f);
+     glPopMatrix();
+
+     // Corpo
+     for(i=0; i<tamanho; i++){
+          glPushMatrix();
+          glTranslatef(corpoPos[0][i],corpoPos[1][i],0.0);
+          glColor3f(1, 0, 0);
+          glRectf(10.0f, 10.0f, 20.0f, 20.0f);
+          glPopMatrix();
+     }
+}
+
+void fJogo(){
+     char tmp_str[40];
+
+     // Fundo do jogo
+     glColor3f(0, 0, 0);
+     glRectf(_Giw, _Gih, _Gfw, _Gfh);
+
+     // Comidinha
+     glPushMatrix();
+     glTranslatef(_bx,_by,0.0);
+     glColor3f(1, 1, 0);
+     glRectf(10.0f, 10.0f, 20.0f, 20.0f);
+     glPopMatrix();
+
+     // Status
+     glColor3f(0, 0, 0);
+     glRasterPos2f(10, 10);
+     sprintf(tmp_str, "Lvl: %d Pts: %d", lvl, bComidas);
+     Escreve(tmp_str);
+     // Comentado: Status da posição X e Y
+     //glRasterPos2f(10, 10);
+     //sprintf(tmp_str, "Pos X: %d Pos Y: %d", _x, _y);
+     //Escreve(tmp_str);
+}
+
+int RandomNumber(int high, int low)
+{
+     return (rand() % (high-low))+low;
+}
+
+void novaBolinha(){
+     time_t seconds;
+     time(&seconds);
+     srand((unsigned int) seconds);
+     _bx = RandomNumber(_Gfw/10-_Giw, _Giw/10+1);
+     _bx = _bx*10;
+     _by = RandomNumber(_Gfh/10-_Gih, _Gih/10+1);
+     _by = _by*10;
+}
+
+bool colisao(){
+     int i;
+
+     for(i=0; i<tamanho; i++){
+            if(corpoPos[0][i] == _x && corpoPos[1][i]  == _y) return true;
+     }
+     return false;
+}
+
+void go(int value){
+     int i;
+
+     _oldX[1] = _x;
+     _oldY[1] = _y;
+     switch(direcao){
+      case DIREITA:
+         _x += 10;
+         if(_x > _Gfw-20) _x = _Giw-10;
+         break;
+      case ESQUERDA:
+         _x -= 10;
+         if(_x < 0) _x = _Gfw-20;
+         break;
+      case CIMA:
+         _y += 10;
+         if(_y > _Gfh-20) _y = _Gih-10;
+         break;
+      case BAIXO:
+         _y -= 10;
+         if(_y < 20) _y = _Gfh-20;
+         break;
+     }
+
+     if(colisao()) gameOver = true;
+
+     if(_x == _bx && _y == _by){
+          bComidas++;
+          if(bComidas < 40) tamanho++;
+          if(bComidas%5 == 0 && lvl < 15) lvl++;
+          novaBolinha();
+     }
+
+     for(i = 0; i<tamanho; i++){
+          _oldX[0]       = _oldX[1];
+          _oldY[0]       = _oldY[1];
+          _oldX[1]       = corpoPos[0][i];
+          _oldY[1]       = corpoPos[1][i];
+          corpoPos[0][i] = _oldX[0];
+          corpoPos[1][i] = _oldY[0];
+     }
+
+     glutTimerFunc(140-lvl*8, go, 0);
+}
+
+void getFPS(){
+    char tmp_str[40];
+
+	if( GetTickCount() - g_dwLastFPS >= 1000 )				// When A Second Has Passed...
+	{
+		g_dwLastFPS = GetTickCount();					// Update Our Time Variable
+		g_nFPS = g_nFrames;						// Save The FPS
+		g_nFrames = 0;							// Reset The FPS Counter
+	}
+	g_nFrames++;
+
+    glRasterPos2f(140, 10);
+    sprintf(tmp_str, "FPS: %d", g_nFPS);
+    Escreve(tmp_str);
+}
+
+void Desenha(void){
+     // Limpa tela
+     glClear(GL_COLOR_BUFFER_BIT);
+
+     if(!gameOver){
+         fJogo();
+         updateCobrinha();
+     }
+     else
+         fTitulo();
+
+     getFPS();
+
+     // Atualiza a tela
+     glutPostRedisplay();
+     glutSwapBuffers();
+}
+
+void teclado(int key, int x, int y){
+   switch(key){
+    case GLUT_KEY_RIGHT     :
+         if(direcao != ESQUERDA)
+           direcao = DIREITA;
+         break;
+    case GLUT_KEY_LEFT      :
+         if(direcao != DIREITA)
+           direcao = ESQUERDA;
+         break;
+    case GLUT_KEY_UP        :
+         if(direcao != BAIXO)
+           direcao = CIMA;
+         break;
+    case GLUT_KEY_DOWN      :
+         if(direcao != CIMA)
+           direcao = BAIXO;
+         break;
+   }
+}
+
+void mouse(int botao, int estado, int x, int y){
+     if(estado == GLUT_UP && x > 90 && x < 280 && y > 80 && y < 100)
+          resetaJogo();
+
+//     Tx = x;
+//     Ty = y;
+}
+
+void Inicializa (void){
+     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void AlteraTamanhoJanela(GLsizei w, GLsizei h){
+     glViewport(0, 0, _w, _h);
+     glMatrixMode(GL_PROJECTION);
+     glLoadIdentity();
+     if (w <= h)
+        gluOrtho2D (0.0f, 250.0f, 0.0f, 250.0f*_h/_w);
+     else
+        gluOrtho2D (0.0f, 250.0f*_w/_h, 0.0f, 250.0f);
+}
+
+int main(void){
+     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+     glutInitWindowSize(_w,_h);
+     glutInitWindowPosition(500,400);
+     glutCreateWindow("Jogo da cobrinha");
+     glutSpecialFunc(teclado);
+     glutDisplayFunc(Desenha);
+     glutReshapeFunc(AlteraTamanhoJanela);
+     glutMouseFunc(mouse);
+
+     novaBolinha();
+     go(0);
+
+     Inicializa();
+     glutMainLoop();
+}
