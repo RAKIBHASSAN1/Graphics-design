@@ -1,0 +1,103 @@
+/*
+ * GL04ModelTransform.cpp: Model Transform - Translation and Rotation
+ * Transform primitives from their model spaces to world space.
+ */
+#include <windows.h>  // for MS Windows
+#include <GL/glut.h>  // GLUT, include glu.h and gl.h
+
+
+#include <stdlib.h>
+
+
+#define RED 1
+#define GREEN 2
+#define BLUE 3
+#define ORANGE 4
+#define QUIT 5
+
+static int obj = RED;
+
+
+void init(void)
+{
+	glClearColor(1.0, 1.0, 1.0, 0.0);
+}
+
+void my_menu(int item) {
+	if (item == QUIT)
+    exit(0);
+  obj = item;
+  glutPostRedisplay();
+}
+
+
+
+
+void display(void)
+{
+	// Set up the projection parameters
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glFrustum(-1.0, 1.0, -1.0, 1.0, 2.0, 20.0);
+
+	// Set up the position of our virtual camera
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(5.0, 5.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+	// Clear the window
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	switch (obj) {
+		case RED :
+			glColor3f(1.0, 0.0, 0.0);
+			glutWireCube(2.0);
+			 break;
+
+		case GREEN :
+			glColor3f(0.0, 1.0, 0.0);
+			glutWireCube(2.0);
+			break;
+
+		case BLUE :
+			glColor3f(0.0, 0.0, 1.0);
+			glutWireCube(2.0);
+			break;
+
+		case ORANGE :
+            glColor3f(1.0, 0.5, 0.5);
+			glutWireCube(2.0);
+			 break;
+
+		case QUIT :
+			 exit(0);
+			 break;
+	}
+
+
+	glFlush();
+}
+
+
+
+int main( int argc , char ** argv)
+{
+	glutInit( &argc, argv) ;
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB) ;
+	glutInitWindowSize(550 , 550 ) ;
+	glutInitWindowPosition( 100 , 100 ) ;
+	glutCreateWindow("3d objects") ;
+
+	init() ;
+	glutDisplayFunc(display) ;
+	glutCreateMenu(my_menu);
+	glutAddMenuEntry("Red",RED);
+	glutAddMenuEntry("Blue",BLUE);
+	glutAddMenuEntry("Green",GREEN);
+	glutAddMenuEntry("Orange",ORANGE);
+	glutAddMenuEntry("Quit", QUIT);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+	glutMainLoop() ;
+	return 0 ;
+}
+
