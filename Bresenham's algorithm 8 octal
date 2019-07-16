@@ -1,0 +1,97 @@
+// C-program for circle drawing
+// using Bresenham’s Algorithm
+// in computer-graphics
+#include <stdio.h>
+#include<bits/stdc++.h>
+using namespace std;
+
+
+// Function to put pixels
+// at subsequence points
+void drawCircle(int xc, int yc, int x, int y)
+{
+  cout<<"("<<x+xc<<","<<y+yc<<") ";
+}
+
+// Function for circle-generation
+// using Bresenham's algorithm
+void circleBres(int xc, int yc, int r)
+{
+    int x = 0, y = r;
+    int p = 3 - 2 * r;
+    cout<<"initial value: ";
+    cout<<"("<<y+xc<<","<<x+yc<<") ";
+     if (r > 0)
+    {
+        cout << "(" << y + xc << ", " << x + yc << ") ";
+        cout << "(" << x + xc << ", " << y + yc << ") ";
+        cout << "(" << x + xc << ", " << y + yc << ")";
+        cout<<endl;
+    }
+    cout<<endl;
+    cout<<"Circle point:"<<endl;
+
+
+    while (y >= x)
+    {
+        // for each pixel we will
+        // draw all eight pixels
+        if(p<0)
+        {
+
+            x++;
+            p=p+4*x+6;
+            cout<<endl;
+            drawCircle(xc, yc, x, y);
+            drawCircle(xc, yc, -1*x, y);
+            drawCircle(xc, yc, x, -1*y);
+            drawCircle(xc, yc, -1*x, -1*y);
+            cout<<endl;
+
+
+
+
+
+        }
+
+        else
+        {
+                  x++;
+                  y--;
+                  p = p + 4 * (x - y) + 10;
+                  cout<<endl;
+                 drawCircle(xc, yc, x, y);
+                 drawCircle(xc, yc, -1*x, y);
+                 drawCircle(xc, yc, x, -1*y);
+                 drawCircle(xc, yc, -1*x, -1*y);
+                 cout<<endl;
+
+        }
+
+
+
+    }
+
+
+}
+
+
+// driver function
+int main()
+{
+    int xc, yc, r1;
+    cout<<"Enter the Center X and Y:";
+    cin>>xc>>yc;
+    cout<<endl;
+    cout<<"Enter the radius r:";
+    cin>>r1;
+    cout<<endl;
+    circleBres(xc, yc, r1);    // function call
+    return 0;
+}
+/*output: for  center(0.0) and radius 3
+       Initial value:  (3, 0) (3, 0) (0, 3) (0, 3)
+        cercle point:  (1, 3) (-1, 3) (1, -3) (-1, -3)
+                       (2, 2) (-2, 2) (2, -2) (-2, -2)
+                       (3, 1) (-3, 1) (3, -1) (-3, -1)
+*/
