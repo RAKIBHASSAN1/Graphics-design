@@ -1,0 +1,156 @@
+
+// C++ program for circle drawing
+// using midpoint Algorithm
+// in computer-graphics
+#include <stdio.h>
+#include<bits/stdc++.h>
+using namespace std;
+
+
+// Function to put pixels
+// at subsequence points
+void drawCircle(int xc, int yc, int x, int y,int r)
+{
+    if(((x+xc)*(x+xc)+(y+yc)*(y+yc)-r*r)==0)
+    {
+        cout<<"("<<x+xc<<","<<y+yc<<") => On the circle"<<endl;
+    }
+    if(((x+xc)*(x+xc)+(y+yc)*(y+yc)-r*r)>0)
+    {
+        cout<<"("<<x+xc<<","<<y+yc<<") => outsite the circle"<<endl;
+    }
+
+   if(((x+xc)*(x+xc)+(y+yc)*(y+yc)-r*r)<0)
+    {
+        cout<<"("<<x+xc<<","<<y+yc<<") => inside the circle"<<endl;
+    }
+
+}
+
+
+void circleBres(int xc, int yc, int r)
+{
+    int x = 0, y = r;
+    int x1[100],y1[100],k=0,k1=0;
+    x1[0]=0;
+    y1[0]=r;
+    cout<<"Initial Point: "<<endl;
+    cout<<endl;
+    if(((y+xc)*(y+xc)+(x+yc)*(x+yc)-r*r)==0)
+    {
+        cout<<"("<<y+xc<<","<<x+yc<<") => On the circle"<<endl;
+    }
+   if(((y+xc)*(y+xc)+(x+yc)*(x+yc)-r*r)>0)
+    {
+        cout<<"("<<y+xc<<","<<x+yc<<") => outsite the circle"<<endl;
+    }
+
+   if(((y+xc)*(y+xc)+(x+yc)*(x+yc)-r*r)<0)
+    {
+        cout<<"("<<y+xc<<","<<x+yc<<") => inside the circle"<<endl;
+    }
+
+    if(r>0)
+    {
+          if(((y+xc)*(y+xc)+(x+yc)*(x+yc)-r*r)==0)
+    {
+        cout<<"("<<y+xc<<","<<x+yc<<") => On the circle"<<endl;
+    }
+   if(((y+xc)*(y+xc)+(x+yc)*(x+yc)-r*r)>0)
+    {
+        cout<<"("<<y+xc<<","<<x+yc<<") => outsite the circle"<<endl;
+    }
+
+   if(((y+xc)*(y+xc)+(x+yc)*(x+yc)-r*r)<0)
+    {
+        cout<<"("<<y+xc<<","<<x+yc<<") => inside the circle"<<endl;
+    }
+    if(((x+xc)*(x+xc)+(y+yc)*(y+yc)-r*r)==0)
+    {
+        cout<<"("<<x+xc<<","<<y+yc<<") => On the circle"<<endl;
+        cout<<"("<<x+xc<<","<<y+yc<<") => On the circle"<<endl;
+    }
+    if(((x+xc)*(x+xc)+(y+yc)*(y+yc)-r*r)>0)
+    {
+        cout<<"("<<x+xc<<","<<y+yc<<") => outsite the circle"<<endl;
+        cout<<"("<<x+xc<<","<<y+yc<<") => outsite the circle"<<endl;
+    }
+
+   if(((x+xc)*(x+xc)+(y+yc)*(y+yc)-r*r)<0)
+    {
+        cout<<"("<<x+xc<<","<<y+yc<<") => inside the circle"<<endl;
+        cout<<"("<<x+xc<<","<<y+yc<<") => inside the circle"<<endl;
+    }
+
+    }
+    cout<<endl<<endl;
+    int p = 1-r;
+    cout<<"Circle point:"<<endl;
+
+
+    while (y >= x)
+    {
+        // for each pixel we will
+        // draw all eight pixels
+        if(p<0)
+        {
+
+            x++;
+            k++;
+            k1++;
+            x1[k]=x;
+            y1[k1]=y;
+            p=p+2*x1[k-1]+3;
+
+           cout<<endl;
+           drawCircle(xc, yc, x, y,r);
+           drawCircle(xc, yc, -1*x, y,r);
+           drawCircle(xc, yc, x, -1*y,r);
+           drawCircle(xc, yc, -1*x, -1*y,r);
+           cout<<endl;
+
+
+
+        }
+
+        else
+        {
+                  x++;
+                  y--;
+                  k++;
+                  k1++;
+                  x1[k]=x;
+                  y1[k1]=y;
+                  p = p + 2 * (x1[k-1] - y1[k1-1]) + 5;
+                   cout<<endl;
+                 drawCircle(xc, yc, x, y,r);
+                drawCircle(xc, yc, -1*x, y,r);
+                drawCircle(xc, yc, x, -1*y,r);
+                drawCircle(xc, yc, -1*x, -1*y,r);
+                cout<<endl;
+
+
+
+        }
+
+
+
+    }
+
+
+}
+
+
+// driver function
+int main()
+{
+    int xc, yc, r1;
+    cout<<"Enter the Center X and Y:";
+    cin>>xc>>yc;
+    cout<<endl;
+    cout<<"Enter the radius r:";
+    cin>>r1;
+    cout<<endl;
+    circleBres(xc, yc, r1);    // function call
+    return 0;
+}
