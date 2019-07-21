@@ -1,0 +1,170 @@
+#include <windows.h>  // for MS Windows
+#include <GL/glut.h>  // GLUT, includes glu.h and gl.h
+/*
+ * GL07BouncingBall.cpp: A ball bouncing inside the window
+ */
+#include <stdlib.h> // GLUT, includes glu.h and gl.h
+#include <Math.h>     // Needed for sin, cos
+#define PI 3.14159265f
+
+static float	tx	=  0.0f;
+static float	ty	=  -.99f;
+// Global variables
+char title[] = "Bouncing Ball (2D)";  // Windowed mode's title
+int windowWidth  = 640;     // Windowed mode's width
+int windowHeight = 440;     // Windowed mode's height
+int windowPosX   = 0;      // Windowed mode's top-left corner x
+int windowPosY   = 0;      // Windowed mode's top-left corner y
+
+GLfloat ballRadius = .04f;   // Radius of the bouncing ball
+GLfloat ballX = 0.0f;         // Ball's center (x, y) position
+GLfloat ballY = -0.95f;
+
+GLfloat ballXMax, ballXMin, ballYMax, ballYMin; // Ball's center (x, y) bounds
+GLfloat xSpeed = 0.01f;      // Ball's speed in x and y directions
+GLfloat ySpeed = 0.01f;
+
+int refreshMillis = 20;      // Refresh period in milliseconds
+
+// Projection clipping area
+GLdouble clipAreaXLeft, clipAreaXRight, clipAreaYBottom, clipAreaYTop;
+
+/* Initialize OpenGL Graphics */
+void initGL() {
+   glClearColor(0.0, 0.0, 0.0, 1.0); // Set background (clear) color to black
+}
+/* Callback handler for window re-paint event */
+void spe_key(int key, int x, int y)
+{
+
+	switch (key) {
+
+		case GLUT_KEY_LEFT:
+				if(tx>=-windowWidth/windowHeight-.32){
+                    tx -=.1;
+                    glutPostRedisplay();
+				}
+				break;
+
+		case GLUT_KEY_RIGHT:
+				if(tx<=windowWidth/windowWidth+.32){
+                    tx +=.1;
+                    glutPostRedisplay();
+				}
+				break;
+
+        default:
+			break;
+	}
+}
+void display() {
+   glClear(GL_COLOR_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);    // To operate on the model-view matrix
+   glLoadIdentity();
+   glPushMatrix();
+	glTranslatef(tx,ty,0);
+	glRectf(-.1, -.01, .1, .01);
+	glPopMatrix();
+
+	glFlush();
+
+    glTranslatef(ballX, ballY, 0.0f);
+   glBegin(GL_TRIANGLE_FAN);
+
+      glVertex2f(0.0f, 0.0f);       // Center of circle
+      int numSegments = 100;
+      GLfloat angle;
+      for (int i = 0; i <= numSegments; i++) { // Last vertex same as first vertex
+         angle = i * 60.0f * PI / numSegments;  // 360 deg for all segments
+         glVertex2f(cos(angle) * ballRadius, sin(angle) * ballRadius);
+      }
+   glEnd();
+   glutSwapBuffers();  // Swap front and back buffers (of double buffered mode)
+   // Animation Control - compute the location for the next refresh
+   ballX += xSpeed;
+   ballY += ySpeed;
+
+   // Check if the ball exceeds the edges
+   if (ballX > ballXMax) {
+        glColor3f(0.0f, 0.0f, 1.0f);
+        ballX = ballXMax;
+        xSpeed = -xSpeed;
+   } else if (ballX < ballXMin) {
+       glColor3f(0.0f, 1.0f, 0.0f);
+      ballX = ballXMin;
+      xSpeed = -xSpeed;
+   }
+   if (ballY > ballYMax) {
+       glColor3f(1.0f, 0.0f, 0.0f);
+      ballY = ballYMax;
+      ySpeed = -ySpeed;
+   } else if (ballY < ballYMin) {
+       if(ballX>tx-.12&&ballX<tx+.12){
+          glColor3f(0.0f, 1.0f, 1.0f);
+          ballY = ballYMin;
+          ySpeed = -ySpeed;
+          xSpeed += .0025;
+          ySpeed += .0025;
+       }
+       else
+        exit(1);
+   }
+}
+/* Call back when the windows is re-sized */
+void reshape(GLsizei width, GLsizei height) {
+   // Compute aspect ratio of the new window
+   if (height == 0) height = 1;                // To prevent divide by 0
+   GLfloat aspect = (GLfloat)width / (GLfloat)height;
+
+   // Set the viewport to cover the new window
+   glViewport(0, 0, width, height);
+
+   // Set the aspect ratio of the clipping area to match the viewport
+   glMatrixMode(GL_PROJECTION);  // To operate on the Projection matrix
+   glLoadIdentity();             // Reset the projection matrix
+   if (width >= height) {
+      clipAreaXLeft   = -1.0 * aspect;
+      clipAreaXRight  = 1.0 * aspect;
+      clipAreaYBottom = -1.0;
+      clipAreaYTop    = 1.0;
+   } else {
+      clipAreaXLeft   = -1.0;
+      clipAreaXRight  = 1.0;
+      clipAreaYBottom = -1.0 / aspect;
+      clipAreaYTop    = 1.0 / aspect;
+   }
+   gluOrtho2D(clipAreaXLeft, clipAreaXRight, clipAreaYBottom, clipAreaYTop);
+   ballXMin = clipAreaXLeft + ballRadius;
+   ballXMax = clipAreaXRight - ballRadius;
+   ballYMin = clipAreaYBottom + ballRadius;
+   ballYMax = clipAreaYTop - ballRadius;
+}
+
+/* Called back when the timer expired */
+void Timer(int value) {
+   glutPostRedisplay();    // Post a paint request to activate display()
+   glutTimerFunc(refreshMillis, Timer, 0); // subsequent timer call at milliseconds
+}
+
+void init(void)
+{
+	glClearColor (0.0, 0.0, 0.0, 0.0);
+	glOrtho(-80.0, 80.0, -80.0, 80.0, -1.0, 1.0);
+}
+
+/* Main function: GLUT runs as a console application starting at main() */
+int main(int argc, char** argv) {
+   glutInit(&argc, argv);            // Initialize GLUT
+   glutInitDisplayMode(GLUT_DOUBLE); // Enable double buffered mode
+   glutInitWindowSize(windowWidth, windowHeight);  // Initial window width and height
+   glutInitWindowPosition(windowPosX, windowPosY); // Initial window top-left corner (x, y)
+   init();
+   glutCreateWindow(title);// Create window with given title
+   glutSpecialFunc(spe_key);
+   glutDisplayFunc(display);      // Register callback handler for window re-paint
+   glutReshapeFunc(reshape);// Register callback handler for window re-shape
+   glutTimerFunc(0, Timer, 0);   // First timer call immediately
+   initGL();// Our own OpenGL initialization
+   glutMainLoop();               // Enter event-processing loop
+   return 0;
+}
